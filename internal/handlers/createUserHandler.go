@@ -12,7 +12,7 @@ import (
 
 func (s *Server) HandleCreateUser() http.HandlerFunc {
 	type createUserInput struct {
-		Email     string `json:"email" validate:"required"`
+		Email     string `json:"email" validate:"required,email"`
 		FirstName string `json:"firstName" validate:"required"`
 		LastName  string `json:"lastName" validate:"required"`
 		Password  string `json:"password" validate:"required"`
@@ -32,22 +32,26 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			errors := []string{}
 
 			for _, err := range err.(validator.ValidationErrors) {
+                if err.Tag() == "required" {
 				errors = append(errors, fmt.Sprintf("Field: %s is required", err.Field()))
+                } else if err.Tag() == "email" {
+                    errors = append(errors, "Incorrect email format")
+                }
 			}
 
 			errorResponse(w, errors, http.StatusBadRequest)
 			return
 		}
 
-        user, err := s.UserRepository.GetByEmail(input.Email)
-        if user != nil {
-            errorResponse(w, []string{"User with given email already exists"}, http.StatusBadRequest)
-            return
-        }
-        if err != nil {
-            log.Println(err)
-            return
-        }
+		user, err := s.UserRepository.GetByEmail(input.Email)
+		if user != nil {
+			errorResponse(w, []string{"User with given email already exists"}, http.StatusBadRequest)
+			return
+		}
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		if input.Password != input.Password2 {
 			errorResponse(w, []string{"Passwords does not match"}, http.StatusBadRequest)
 			return
@@ -56,16 +60,16 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 		hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), 12)
 		if err != nil {
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
-            return
+			return
 		}
 
-        err = s.UserRepository.Create(input.FirstName, input.LastName, input.Email, string(hash))
-        if err != nil {
-            errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
-            return
-        }
+		err = s.UserRepository.Create(input.FirstName, input.LastName, input.Email, string(hash))
+		if err != nil {
+			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
+			return
+		}
 
-        w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusCreated)
 
 	}
 }

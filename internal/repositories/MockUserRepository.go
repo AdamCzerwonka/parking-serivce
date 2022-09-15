@@ -21,21 +21,21 @@ func (r *InMemoryUserRepository) Create(firstName, lastName, email, passwordHash
 		LastName:     lastName,
 		Email:        email,
 		PasswordHash: passwordHash,
-        CreatedAt: &sql.NullTime{Time: time.Now()},
-        UpdatedAt: &sql.NullTime{Time: time.Now()},
-        DeletedAt: nil,
+		CreatedAt:    &sql.NullTime{Time: time.Now()},
+		UpdatedAt:    &sql.NullTime{Time: time.Now()},
+		DeletedAt:    nil,
 	}
 
-    r.users = append(r.users, user)
-    return nil
+	r.users = append(r.users, user)
+	return nil
 }
 
 func (r *InMemoryUserRepository) GetByEmail(email string) (*entities.User, error) {
-    for _,user := range r.users {
-        if user.Email == email {
-            return &user, nil
-        }
-    }
+	for _, user := range r.users {
+		if user.Email == email {
+			return &user, nil
+		}
+	}
 
-    return nil, nil
+	return nil, nil
 }

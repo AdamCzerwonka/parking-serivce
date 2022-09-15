@@ -12,8 +12,8 @@ func New() *mux.Router {
 	r := mux.NewRouter()
 
 	srv := handlers.Server{
-		Validate: validator.New(),
-        UserRepository: repositories.NewInMemoryUserRepository(),
+		Validate:       validator.New(),
+		UserRepository: repositories.NewInMemoryUserRepository(),
 	}
 
 	s := r.PathPrefix("/api/v1").Subrouter()
