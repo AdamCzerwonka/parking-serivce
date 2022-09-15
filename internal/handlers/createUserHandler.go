@@ -32,11 +32,11 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			errors := []string{}
 
 			for _, err := range err.(validator.ValidationErrors) {
-                if err.Tag() == "required" {
-				errors = append(errors, fmt.Sprintf("Field: %s is required", err.Field()))
-                } else if err.Tag() == "email" {
-                    errors = append(errors, "Incorrect email format")
-                }
+				if err.Tag() == "required" {
+					errors = append(errors, fmt.Sprintf("Field: %s is required", err.Field()))
+				} else if err.Tag() == "email" {
+					errors = append(errors, "Incorrect email format")
+				}
 			}
 
 			errorResponse(w, errors, http.StatusBadRequest)
