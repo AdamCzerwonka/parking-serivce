@@ -9,19 +9,45 @@ import (
 	"os/signal"
 	"parking-service/internal/router"
 	"time"
+
+	"github.com/jmoiron/sqlx"
+    _ "github.com/lib/pq"
 )
 
 type config struct {
 	port int
 	env  string
+    dbHost string
+    dbUser string
+    dbPass string
+    dbName string
+    dbPort int
 }
 
 func main() {
 	cfg := config{
 		port: 8080,
 		env:  "dev",
+        dbHost: "localhost",
+        dbPort: 5432,
+        dbUser: "postgres",
+        dbPass: "example",
+        dbName: "parkingservice",
 	}
-	router := router.New()
+
+    dsn := fmt.Sprintf(
+        "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+        cfg.dbHost, cfg.dbPort, cfg.dbUser, cfg.dbPass, cfg.dbName,
+    )
+
+    ctx,cancel := context.WithCancel(context.Background())
+    defer cancel()
+
+    db, err := sqlx.ConnectContext(ctx, "postgres", dsn)
+    if err != nil {
+        log.Fatal(err)
+    }
+	router := router.New(db)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("0.0.0.0:%d", cfg.port),
@@ -42,7 +68,7 @@ func main() {
 
 	<-c
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
 	srv.Shutdown(ctx)
