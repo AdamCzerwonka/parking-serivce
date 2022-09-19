@@ -1,8 +1,11 @@
 package repositories
 
-import "parking-service/internal/entities"
+import (
+	"context"
+	"parking-service/internal/entities"
+)
 
 type UserRepository interface {
-	Create(firstName, lastName, email, passwordHash string) error
-	GetByEmail(email string) (*entities.User, error)
+	Create(ctx context.Context, firstName, lastName, email, passwordHash string) error
+	GetByEmail(ctx context.Context, email string) (*entities.User, error)
 }

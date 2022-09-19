@@ -6,14 +6,15 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 )
 
-func New() *mux.Router {
+func New(db *sqlx.DB) *mux.Router {
 	r := mux.NewRouter()
 
 	srv := handlers.Server{
 		Validate:       validator.New(),
-		UserRepository: repositories.NewInMemoryUserRepository(),
+		UserRepository: repositories.NewDbUserRepository(db),
 	}
 
 	s := r.PathPrefix("/api/v1").Subrouter()
