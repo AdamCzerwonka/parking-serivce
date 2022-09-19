@@ -43,15 +43,16 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			return
 		}
 
-		user, err := s.UserRepository.GetByEmail(r.Context(),input.Email)
+		user, err := s.UserRepository.GetByEmail(r.Context(), input.Email)
 		if user != nil {
 			errorResponse(w, []string{"User with given email already exists"}, http.StatusBadRequest)
 			return
 		}
+
 		if err != nil {
 			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
-            return
+			return
 		}
 		if input.Password != input.Password2 {
 			errorResponse(w, []string{"Passwords does not match"}, http.StatusBadRequest)
@@ -60,12 +61,14 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 
 		hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), 12)
 		if err != nil {
+            log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
 		}
 
-		err = s.UserRepository.Create(r.Context(),input.FirstName, input.LastName, input.Email, string(hash))
+		err = s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
 		if err != nil {
+            log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
 		}

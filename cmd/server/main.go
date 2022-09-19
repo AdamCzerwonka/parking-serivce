@@ -11,42 +11,42 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-    _ "github.com/lib/pq"
+	_ "github.com/lib/pq"
 )
 
 type config struct {
-	port int
-	env  string
-    dbHost string
-    dbUser string
-    dbPass string
-    dbName string
-    dbPort int
+	port   int
+	env    string
+	dbHost string
+	dbUser string
+	dbPass string
+	dbName string
+	dbPort int
 }
 
 func main() {
 	cfg := config{
-		port: 8080,
-		env:  "dev",
-        dbHost: "localhost",
-        dbPort: 5432,
-        dbUser: "postgres",
-        dbPass: "example",
-        dbName: "parkingservice",
+		port:   8080,
+		env:    "dev",
+		dbHost: "localhost",
+		dbPort: 5432,
+		dbUser: "postgres",
+		dbPass: "example",
+		dbName: "parkingservice",
 	}
 
-    dsn := fmt.Sprintf(
-        "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-        cfg.dbHost, cfg.dbPort, cfg.dbUser, cfg.dbPass, cfg.dbName,
-    )
+	dsn := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.dbHost, cfg.dbPort, cfg.dbUser, cfg.dbPass, cfg.dbName,
+	)
 
-    ctx,cancel := context.WithCancel(context.Background())
-    defer cancel()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-    db, err := sqlx.ConnectContext(ctx, "postgres", dsn)
-    if err != nil {
-        log.Fatal(err)
-    }
+	db, err := sqlx.ConnectContext(ctx, "postgres", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
 	router := router.New(db)
 
 	srv := &http.Server{

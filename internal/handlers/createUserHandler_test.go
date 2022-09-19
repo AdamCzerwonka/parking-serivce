@@ -1,9 +1,10 @@
-package handlers
+package handlers_test
 
 import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"parking-service/internal/handlers"
 	"parking-service/internal/repositories"
 	"strings"
 	"testing"
@@ -35,7 +36,7 @@ func TestCreateUserHandler(t *testing.T) {
 	}
 
 	is := is.New(t)
-	server := Server{
+	server := handlers.Server{
 		Validate:       validator.New(),
 		UserRepository: repositories.NewInMemoryUserRepository(),
 	}
