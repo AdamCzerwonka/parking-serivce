@@ -15,7 +15,7 @@ func NewInMemoryUserRepository() *InMemoryUserRepository {
 	return &InMemoryUserRepository{users: []entities.User{}}
 }
 
-func (r *InMemoryUserRepository) Create(_ context.Context,firstName ,lastName, email, passwordHash string) error {
+func (r *InMemoryUserRepository) Create(_ context.Context, firstName, lastName, email, passwordHash string) error {
 	user := entities.User{
 		Id:           len(r.users),
 		FirstName:    firstName,
@@ -31,7 +31,7 @@ func (r *InMemoryUserRepository) Create(_ context.Context,firstName ,lastName, e
 	return nil
 }
 
-func (r *InMemoryUserRepository) GetByEmail(_ context.Context,email string) (*entities.User, error) {
+func (r *InMemoryUserRepository) GetByEmail(_ context.Context, email string) (*entities.User, error) {
 	for _, user := range r.users {
 		if user.Email == email {
 			return &user, nil

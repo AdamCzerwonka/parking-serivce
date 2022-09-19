@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/big"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -61,19 +64,41 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 
 		hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), 12)
 		if err != nil {
-            log.Println(err)
+			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
 		}
 
 		err = s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
 		if err != nil {
-            log.Println(err)
+			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
+        token := genereteEmailConfirmationToken()
+
+        jsonResponse(w, token, http.StatusCreated)
 
 	}
 }
+
+func genereteEmailConfirmationToken() string {
+    token := ""
+    for i := 0; i < 20; i++ {
+        num, err := rand.Int(rand.Reader, big.NewInt(1000))
+        if err != nil {
+            continue
+        }
+        token += fmt.Sprint(num.Int64())
+    }
+
+    tokenHash := sha256.Sum256([]byte(token))
+    token = fmt.Sprintf("%x", tokenHash)
+
+    return token 
+}
+
+
+
+

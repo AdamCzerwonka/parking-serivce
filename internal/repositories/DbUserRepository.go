@@ -24,7 +24,7 @@ func (r *DbUserRepository) Create(ctx context.Context,
 	sql := `INSERT INTO users(first_name, last_name, email, password_hash, role)
         VALUES ($1,$2,$3,$4,$5);`
 
-	_, err := r.db.ExecContext(ctx, sql, firstName, lastName, email, passwordHash,"user")
+	_, err := r.db.ExecContext(ctx, sql, firstName, lastName, email, passwordHash, "user")
 	return err
 }
 
