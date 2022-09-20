@@ -13,8 +13,9 @@ func New(db *sqlx.DB) *mux.Router {
 	r := mux.NewRouter()
 
 	srv := handlers.Server{
-		Validate:       validator.New(),
-		UserRepository: repositories.NewDbUserRepository(db),
+		Validate:             validator.New(),
+		UserRepository:       repositories.NewDbUserRepository(db),
+		EmailTokenRepository: repositories.NewDbEmailTokenRepository(db),
 	}
 
 	s := r.PathPrefix("/api/v1").Subrouter()

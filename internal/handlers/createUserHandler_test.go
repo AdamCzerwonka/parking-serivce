@@ -39,6 +39,7 @@ func TestCreateUserHandler(t *testing.T) {
 	server := handlers.Server{
 		Validate:       validator.New(),
 		UserRepository: repositories.NewInMemoryUserRepository(),
+        EmailTokenRepository: repositories.NewInMemoryEmailTokenRepository(),
 	}
 
 	for _, test := range tests {

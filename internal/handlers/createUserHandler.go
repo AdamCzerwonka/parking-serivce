@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
@@ -69,36 +70,39 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			return
 		}
 
-		err = s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
+        id,err := s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
 		if err != nil {
 			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
 		}
 
-        token := genereteEmailConfirmationToken()
+		token := genereteEmailConfirmationToken()
 
-        jsonResponse(w, token, http.StatusCreated)
+        err = s.EmailTokenRepository.Create(r.Context(), id, token,time.Hour*24)
+        if err != nil {
+            log.Println(err)
+			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
+            return
+        }
+
+		jsonResponse(w, token, http.StatusCreated)
 
 	}
 }
 
 func genereteEmailConfirmationToken() string {
-    token := ""
-    for i := 0; i < 20; i++ {
-        num, err := rand.Int(rand.Reader, big.NewInt(1000))
-        if err != nil {
-            continue
-        }
-        token += fmt.Sprint(num.Int64())
-    }
+	token := ""
+	for i := 0; i < 20; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(1000))
+		if err != nil {
+			continue
+		}
+		token += fmt.Sprint(num.Int64())
+	}
 
-    tokenHash := sha256.Sum256([]byte(token))
-    token = fmt.Sprintf("%x", tokenHash)
+	tokenHash := sha256.Sum256([]byte(token))
+	token = fmt.Sprintf("%x", tokenHash)
 
-    return token 
+	return token
 }
-
-
-
-
