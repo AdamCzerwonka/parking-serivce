@@ -46,3 +46,10 @@ func (r *DbUserRepository) GetByEmail(ctx context.Context, email string) (*entit
 
 	return user, nil
 }
+
+func (r *DbUserRepository) VerifyUser(ctx context.Context, userId int) error {
+    sqlQuery := `UPDATE users SET enabled=true WHERE id=$1;`
+    
+    _, err := r.db.ExecContext(ctx, sqlQuery, userId) 
+    return err
+}

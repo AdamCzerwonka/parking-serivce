@@ -63,7 +63,11 @@ func (s *Server) HandleVerifyEmail() http.HandlerFunc {
             return
         }
 
-        log.Println("Account unlocked")
-
+        err = s.UserRepository.VerifyUser(r.Context(), dbToken.UserId)
+        if err != nil {
+            log.Println(err)
+            errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
+            return
+        }
     }
 }
