@@ -26,6 +26,6 @@ func (r *InMemoryEmailTokenRepository) Create(_ context.Context, user_id int, to
 	return nil
 }
 
-func (r *InMemoryEmailTokenRepository) Get(_ context.Context, user_id int) (string, error) {
-	return "", nil
+func (r *InMemoryEmailTokenRepository) Get(_ context.Context, user_id int) (*entities.EmailToken, error) {
+	return nil, nil
 }

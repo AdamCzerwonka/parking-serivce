@@ -19,3 +19,9 @@ Input (as json):
 }
 ```
 Returns: 201, 400, 500
+
+#### Verify User Account
+Path: /api/v1/verifyEmail?token=**Here pass your token**
+Method: GET
+
+Returns: 201, 400, 500

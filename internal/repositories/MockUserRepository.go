@@ -7,11 +7,11 @@ import (
 )
 
 type InMemoryUserRepository struct {
-	users []entities.User
+	users []*entities.User
 }
 
 func NewInMemoryUserRepository() *InMemoryUserRepository {
-	return &InMemoryUserRepository{users: []entities.User{}}
+	return &InMemoryUserRepository{users: []*entities.User{}}
 }
 
 func (r *InMemoryUserRepository) Create(_ context.Context, firstName, lastName, email, passwordHash string) (int, error) {
@@ -26,16 +26,27 @@ func (r *InMemoryUserRepository) Create(_ context.Context, firstName, lastName, 
 		DeletedAt:    nil,
 	}
 
-	r.users = append(r.users, user)
+	r.users = append(r.users, &user)
 	return user.Id, nil
 }
 
 func (r *InMemoryUserRepository) GetByEmail(_ context.Context, email string) (*entities.User, error) {
 	for _, user := range r.users {
 		if user.Email == email {
-			return &user, nil
+			return user, nil
 		}
 	}
 
 	return nil, nil
+}
+
+
+func (r *InMemoryUserRepository) VerifyUser(_ context.Context, userId int) error {
+    for _,user := range r.users {
+        if user.Id == userId {
+            user.Enabled = true
+            break
+        }
+    }
+    return nil
 }
