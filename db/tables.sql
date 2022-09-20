@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS users
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR NOT NULL,
     role varchar(20) NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT '0',
+    last_login TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ
