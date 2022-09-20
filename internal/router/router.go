@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"parking-service/internal/handlers"
 	"parking-service/internal/repositories"
 
@@ -21,6 +22,7 @@ func New(db *sqlx.DB) *mux.Router {
 	s := r.PathPrefix("/api/v1").Subrouter()
 
 	s.HandleFunc("/user", srv.HandleCreateUser()).Methods("POST")
+    s.HandleFunc("/verifyEmail", srv.HandleVerifyEmail()).Methods(http.MethodGet)
 
 	return r
 }
