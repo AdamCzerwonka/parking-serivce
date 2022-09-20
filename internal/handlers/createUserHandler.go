@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -86,7 +87,24 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			return
 		}
 
-		jsonResponse(w, token, http.StatusCreated)
+        tokenStuct := struct{
+            UserId int `json:"userid"`
+            Token string `json:"token"`
+        }{
+            UserId: id,
+            Token: token,
+        }
+
+        tokenJson, err := json.Marshal(tokenStuct)
+        if err != nil {
+			log.Println(err)
+			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
+			return
+        }
+
+        tokenb64:= base64.StdEncoding.EncodeToString(tokenJson)
+
+		jsonResponse(w, tokenb64, http.StatusCreated)
 
 	}
 }

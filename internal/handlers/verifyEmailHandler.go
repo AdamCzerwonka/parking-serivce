@@ -58,7 +58,7 @@ func (s *Server) HandleVerifyEmail() http.HandlerFunc {
             return
         }
 
-        if dbToken.ValidTo.After(time.Now()) {
+        if time.Now().After(dbToken.ValidTo) {
             errorResponse(w, []string{"Token expired"},http.StatusBadRequest)
             return
         }
