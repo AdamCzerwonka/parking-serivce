@@ -70,7 +70,7 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			return
 		}
 
-        id,err := s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
+		id, err := s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
 		if err != nil {
 			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
@@ -79,12 +79,12 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 
 		token := genereteEmailConfirmationToken()
 
-        err = s.EmailTokenRepository.Create(r.Context(), id, token,time.Hour*24)
-        if err != nil {
-            log.Println(err)
+		err = s.EmailTokenRepository.Create(r.Context(), id, token, time.Hour*24)
+		if err != nil {
+			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
-            return
-        }
+			return
+		}
 
 		jsonResponse(w, token, http.StatusCreated)
 
