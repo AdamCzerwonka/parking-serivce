@@ -20,12 +20,14 @@ func NewDbUserRepository(db *sqlx.DB) *DbUserRepository {
 }
 
 func (r *DbUserRepository) Create(ctx context.Context,
-	firstName, lastName, email, passwordHash string) error {
+	firstName, lastName, email, passwordHash string) (int, error) {
 	sql := `INSERT INTO users(first_name, last_name, email, password_hash, role)
-        VALUES ($1,$2,$3,$4,$5);`
+        VALUES ($1,$2,$3,$4,$5) RETURNING id;`
 
-	_, err := r.db.ExecContext(ctx, sql, firstName, lastName, email, passwordHash,"user")
-	return err
+	var id int
+
+	err := r.db.GetContext(ctx, &id, sql, firstName, lastName, email, passwordHash, "user")
+	return id, err
 }
 
 func (r *DbUserRepository) GetByEmail(ctx context.Context, email string) (*entities.User, error) {
@@ -43,4 +45,11 @@ func (r *DbUserRepository) GetByEmail(ctx context.Context, email string) (*entit
 	}
 
 	return user, nil
+}
+
+func (r *DbUserRepository) VerifyUser(ctx context.Context, userId int) error {
+	sqlQuery := `UPDATE users SET enabled=true WHERE id=$1;`
+
+	_, err := r.db.ExecContext(ctx, sqlQuery, userId)
+	return err
 }

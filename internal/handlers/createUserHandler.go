@@ -1,10 +1,15 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
@@ -61,19 +66,70 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 
 		hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), 12)
 		if err != nil {
-            log.Println(err)
+			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
 		}
 
-		err = s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
+		id, err := s.UserRepository.Create(r.Context(), input.FirstName, input.LastName, input.Email, string(hash))
 		if err != nil {
-            log.Println(err)
+			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
+		token := genereteToken()
+
+		err = s.EmailTokenRepository.Create(r.Context(), id, token, time.Hour*24)
+		if err != nil {
+			log.Println(err)
+			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
+			return
+		}
+
+		verificationToken, err := createEmailConfirmationToken(id, token)
+		if err != nil {
+			log.Println(err)
+			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
+			return
+		}
+
+		jsonResponse(w, verificationToken, http.StatusCreated)
 
 	}
+}
+
+func genereteToken() string {
+	token := ""
+	for i := 0; i < 20; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(1000))
+		if err != nil {
+			continue
+		}
+		token += fmt.Sprint(num.Int64())
+	}
+
+	tokenHash := sha256.Sum256([]byte(token))
+	token = fmt.Sprintf("%x", tokenHash)
+
+	return token
+}
+
+func createEmailConfirmationToken(userId int, token string) (string, error) {
+	tokenStuct := struct {
+		UserId int    `json:"userid"`
+		Token  string `json:"token"`
+	}{
+		UserId: userId,
+		Token:  token,
+	}
+
+	tokenJson, err := json.Marshal(tokenStuct)
+	if err != nil {
+		return "", err
+	}
+
+	tokenb64 := base64.StdEncoding.EncodeToString(tokenJson)
+
+	return tokenb64, nil
 }
