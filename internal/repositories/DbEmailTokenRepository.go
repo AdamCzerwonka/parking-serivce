@@ -33,18 +33,18 @@ func (r *DbEmailTokenRepository) Create(ctx context.Context, user_id int, token 
 }
 
 func (r *DbEmailTokenRepository) Get(ctx context.Context, user_id int) (*entities.EmailToken, error) {
-    sqlQuery := `SELECT user_id, token, valid_from,valid_to FROM email_tokens WHERE user_id=$1`
-    token := entities.EmailToken{} 
+	sqlQuery := `SELECT user_id, token, valid_from,valid_to FROM email_tokens WHERE user_id=$1`
+	token := entities.EmailToken{}
 
-    err := r.db.QueryRowxContext(ctx, sqlQuery,user_id).StructScan(&token)
-    if err !=nil && errors.Is(err, sql.ErrNoRows) {
-        return nil,nil
-    }
+	err := r.db.QueryRowxContext(ctx, sqlQuery, user_id).StructScan(&token)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
 
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    return &token, nil
-    
+	return &token, nil
+
 }

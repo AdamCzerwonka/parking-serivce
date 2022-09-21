@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"parking-service/internal/entities"
 	"time"
 )
@@ -27,5 +28,11 @@ func (r *InMemoryEmailTokenRepository) Create(_ context.Context, user_id int, to
 }
 
 func (r *InMemoryEmailTokenRepository) Get(_ context.Context, user_id int) (*entities.EmailToken, error) {
-	return nil, nil
+	for _, token := range r.tokens {
+		if token.UserId == user_id {
+			return &token, nil
+		}
+	}
+
+	return nil, errors.New("Token not found")
 }

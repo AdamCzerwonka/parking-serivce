@@ -40,13 +40,12 @@ func (r *InMemoryUserRepository) GetByEmail(_ context.Context, email string) (*e
 	return nil, nil
 }
 
-
 func (r *InMemoryUserRepository) VerifyUser(_ context.Context, userId int) error {
-    for _,user := range r.users {
-        if user.Id == userId {
-            user.Enabled = true
-            break
-        }
-    }
-    return nil
+	for _, user := range r.users {
+		if user.Id == userId {
+			user.Enabled = true
+			break
+		}
+	}
+	return nil
 }

@@ -78,7 +78,7 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			return
 		}
 
-		token := genereteEmailConfirmationToken()
+		token := genereteToken()
 
 		err = s.EmailTokenRepository.Create(r.Context(), id, token, time.Hour*24)
 		if err != nil {
@@ -87,29 +87,19 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			return
 		}
 
-        tokenStuct := struct{
-            UserId int `json:"userid"`
-            Token string `json:"token"`
-        }{
-            UserId: id,
-            Token: token,
-        }
-
-        tokenJson, err := json.Marshal(tokenStuct)
-        if err != nil {
+		verificationToken, err := createEmailConfirmationToken(id, token)
+		if err != nil {
 			log.Println(err)
 			errorResponse(w, []string{"Something went wrong while processing your request"}, http.StatusInternalServerError)
 			return
-        }
+		}
 
-        tokenb64:= base64.StdEncoding.EncodeToString(tokenJson)
-
-		jsonResponse(w, tokenb64, http.StatusCreated)
+		jsonResponse(w, verificationToken, http.StatusCreated)
 
 	}
 }
 
-func genereteEmailConfirmationToken() string {
+func genereteToken() string {
 	token := ""
 	for i := 0; i < 20; i++ {
 		num, err := rand.Int(rand.Reader, big.NewInt(1000))
@@ -123,4 +113,23 @@ func genereteEmailConfirmationToken() string {
 	token = fmt.Sprintf("%x", tokenHash)
 
 	return token
+}
+
+func createEmailConfirmationToken(userId int, token string) (string, error) {
+	tokenStuct := struct {
+		UserId int    `json:"userid"`
+		Token  string `json:"token"`
+	}{
+		UserId: userId,
+		Token:  token,
+	}
+
+	tokenJson, err := json.Marshal(tokenStuct)
+	if err != nil {
+		return "", err
+	}
+
+	tokenb64 := base64.StdEncoding.EncodeToString(tokenJson)
+
+	return tokenb64, nil
 }
