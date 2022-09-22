@@ -19,6 +19,22 @@ func NewDbUserRepository(db *sqlx.DB) *DbUserRepository {
 	}
 }
 
+func (r *DbUserRepository) GetById(ctx context.Context, userId int) (*entities.User, error) {
+	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at,role,last_login FROM users WHERE id=$1`
+	user := &entities.User{}
+
+	err := r.db.QueryRowxContext(ctx, sqlQuery, userId).StructScan(user)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+
+}
+
 func (r *DbUserRepository) Create(ctx context.Context,
 	firstName, lastName, email, passwordHash string) (int, error) {
 	sql := `INSERT INTO users(first_name, last_name, email, password_hash, role)

@@ -59,21 +59,21 @@ func TestHandleVerifyEmail(t *testing.T) {
 			}(),
 			result: http.StatusOK,
 		},
-        {
-            name: "TokenTooOld",
-            token: func () string {
+		{
+			name: "TokenTooOld",
+			token: func() string {
 				userId, _ := srv.UserRepository.Create(ctx, "Test", "Test", "Test@test.com", "hash")
 
 				token := genereteToken()
 				verToken, _ := createEmailConfirmationToken(userId, token)
 				srv.EmailTokenRepository.Create(ctx, userId, token, time.Millisecond)
 
-                time.Sleep(time.Millisecond*10)
+				time.Sleep(time.Millisecond * 10)
 
 				return verToken
-            }(),
-            result: http.StatusBadRequest,
-        },
+			}(),
+			result: http.StatusBadRequest,
+		},
 	}
 
 	is := is.New(t)

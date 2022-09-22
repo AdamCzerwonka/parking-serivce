@@ -14,6 +14,17 @@ func NewInMemoryUserRepository() *InMemoryUserRepository {
 	return &InMemoryUserRepository{users: []*entities.User{}}
 }
 
+func (r *InMemoryUserRepository) GetById(_ context.Context, userId int) (*entities.User, error) {
+	for _, user := range r.users {
+		if user.Id == userId {
+			return user, nil
+		}
+	}
+
+	return nil, nil
+	
+}
+
 func (r *InMemoryUserRepository) Create(_ context.Context, firstName, lastName, email, passwordHash string) (int, error) {
 	user := entities.User{
 		Id:           len(r.users),
