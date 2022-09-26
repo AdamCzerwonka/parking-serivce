@@ -14,6 +14,18 @@ func NewInMemoryUserRepository() *InMemoryUserRepository {
 	return &InMemoryUserRepository{users: []*entities.User{}}
 }
 
+func (r *InMemoryUserRepository) Get(_ context.Context, page, pageSize int) ([]*entities.User, error) {
+	toSkip := pageSize * (page-1)
+    if len(r.users) == 0 {
+        return nil, nil
+    }
+
+    end := toSkip + pageSize
+    if len(r.users) < toSkip + pageSize {
+        end = len(r.users)
+    }
+	return r.users[toSkip : end], nil
+}
 func (r *InMemoryUserRepository) GetById(_ context.Context, userId int) (*entities.User, error) {
 	for _, user := range r.users {
 		if user.Id == userId {
@@ -22,7 +34,7 @@ func (r *InMemoryUserRepository) GetById(_ context.Context, userId int) (*entiti
 	}
 
 	return nil, nil
-	
+
 }
 
 func (r *InMemoryUserRepository) Create(_ context.Context, firstName, lastName, email, passwordHash string) (int, error) {

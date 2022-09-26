@@ -19,31 +19,31 @@ func NewDbUserRepository(db *sqlx.DB) *DbUserRepository {
 	}
 }
 
-func (r *DbUserRepository) Get(ctx context.Context,page,pageSize int) ([]*entities.User, error) {
-    sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at, role, last_login FROM users LIMIT $1 OFFSET $2;`
-    toSkip := pageSize * (page-1)
+func (r *DbUserRepository) Get(ctx context.Context, page, pageSize int) ([]*entities.User, error) {
+	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at, role, last_login FROM users LIMIT $1 OFFSET $2;`
+	toSkip := pageSize * (page - 1)
 
-    rows, err := r.db.QueryxContext(ctx, sqlQuery, pageSize, toSkip)
-    if err != nil && errors.Is(err, sql.ErrNoRows) {
-        return nil, nil
-    }
+	rows, err := r.db.QueryxContext(ctx, sqlQuery, pageSize, toSkip)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
 
-    if err != nil {
-        return nil , err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    result := []*entities.User{}
+	result := []*entities.User{}
 
-    for rows.Next() {
-        p := &entities.User{} 
-        err  = rows.StructScan(p)
-        if err != nil {
-            return nil, err
-        }
-        result = append(result, p)
-    }
+	for rows.Next() {
+		p := &entities.User{}
+		err = rows.StructScan(p)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, p)
+	}
 
-    return result, nil
+	return result, nil
 }
 
 func (r *DbUserRepository) GetById(ctx context.Context, userId int) (*entities.User, error) {

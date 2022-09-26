@@ -10,5 +10,5 @@ type UserRepository interface {
 	GetByEmail(ctx context.Context, email string) (*entities.User, error)
 	VerifyUser(ctx context.Context, userId int) error
 	GetById(ctx context.Context, userId int) (*entities.User, error)
-    Get(ctx context.Context, page,pageSize int) ([]*entities.User, error)
+	Get(ctx context.Context, page, pageSize int) ([]*entities.User, error)
 }

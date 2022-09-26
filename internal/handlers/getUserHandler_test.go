@@ -43,13 +43,13 @@ func TestHandleGetUser(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			iss := is.New(t)
-			req, _ := http.NewRequest(http.MethodGet,"/api/v1/user/"+test.id , nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/user/"+test.id, nil)
 
-            vars := map[string]string {
-                "id":test.id,
-            }
+			vars := map[string]string{
+				"id": test.id,
+			}
 
-            req = mux.SetURLVars(req,vars)
+			req = mux.SetURLVars(req, vars)
 
 			handler := srv.HandleGetUser()
 
