@@ -19,6 +19,26 @@ func NewDbUserRepository(db *sqlx.DB) *DbUserRepository {
 	}
 }
 
+func (r *DbUserRepository) CheckIfVerified(ctx context.Context, userId int) error {
+    sqlQuery := `SELECT enabled FROM users WHERE id=$1;`
+    var result bool
+    err :=  r.db.GetContext(ctx, &result, sqlQuery, userId)
+    if err != nil {
+        return err
+    }
+
+    if result == false {
+        return errors.New("User account is not enabled")
+    }
+    return nil
+}
+
+func (r *DbUserRepository) UpdateLogin(ctx context.Context, userId int) error {
+    sqlQuery := `UPDATE users SET last_login=now() WHERE id=$1;`
+    _, err := r.db.ExecContext(ctx, sqlQuery, userId)
+    return err
+}
+
 func (r *DbUserRepository) Delete(ctx context.Context, userId int) error {
     sqlQuery := `UPDATE users SET deleted_at=now() WHERE id=$1;`
 

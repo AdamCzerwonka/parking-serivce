@@ -45,6 +45,11 @@ func (s *Server) HandleLogin() http.HandlerFunc {
             return
         }
 
+        if err = s.UserRepository.CheckIfVerified(r.Context(), user.Id); err != nil {
+            jsonResponse(w, "Account not enabled. Please verify your account", http.StatusBadRequest)
+            return
+        }
+
         expirationTime:= time.Now().Add(24 * time.Hour)
 
         claims := claims {
@@ -62,6 +67,12 @@ func (s *Server) HandleLogin() http.HandlerFunc {
             return
         }
 
+        err = s.UserRepository.UpdateLogin(r.Context(), user.Id)
+        if err != nil {
+            w.WriteHeader(http.StatusInternalServerError)
+            log.Println(err)
+            return
+        }
         jsonResponse(w, tokenString, http.StatusOK)
 
     }
