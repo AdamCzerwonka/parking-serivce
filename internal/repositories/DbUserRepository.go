@@ -27,7 +27,7 @@ func (r *DbUserRepository) Delete(ctx context.Context, userId int) error {
 }
 
 func (r *DbUserRepository) Get(ctx context.Context, page, pageSize int) ([]*entities.User, error) {
-	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at, role, last_login FROM users LIMIT $1 OFFSET $2;`
+	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at, role, last_login FROM users WHERE deleted_at IS NULL LIMIT $1 OFFSET $2;`
 	toSkip := pageSize * (page - 1)
 
 	rows, err := r.db.QueryxContext(ctx, sqlQuery, pageSize, toSkip)
@@ -54,7 +54,7 @@ func (r *DbUserRepository) Get(ctx context.Context, page, pageSize int) ([]*enti
 }
 
 func (r *DbUserRepository) GetById(ctx context.Context, userId int) (*entities.User, error) {
-	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at,role,last_login FROM users WHERE id=$1`
+	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at,role,last_login FROM users WHERE id=$1 AND deleted_at IS NULL;`
 	user := &entities.User{}
 
 	err := r.db.QueryRowxContext(ctx, sqlQuery, userId).StructScan(user)
@@ -83,7 +83,7 @@ func (r *DbUserRepository) Create(ctx context.Context,
 func (r *DbUserRepository) GetByEmail(ctx context.Context, email string) (*entities.User, error) {
 	user := &entities.User{}
 
-	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at FROM users WHERE email=$1`
+	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at FROM users WHERE email=$1 AND deleted_at IS NULL;`
 	err := r.db.QueryRowxContext(ctx, sqlQuery, email).StructScan(user)
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {

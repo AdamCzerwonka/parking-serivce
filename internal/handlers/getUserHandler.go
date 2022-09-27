@@ -36,7 +36,7 @@ func (s *Server) HandleGetUser() http.HandlerFunc {
 		}
 
 		if user == nil {
-			errorResponse(w, []string{"User with given id does not exists"}, http.StatusBadRequest)
+            w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
