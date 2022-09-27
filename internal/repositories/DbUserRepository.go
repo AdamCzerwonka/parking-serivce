@@ -19,6 +19,13 @@ func NewDbUserRepository(db *sqlx.DB) *DbUserRepository {
 	}
 }
 
+func (r *DbUserRepository) Delete(ctx context.Context, userId int) error {
+    sqlQuery := `UPDATE users SET deleted_at=now() WHERE id=$1;`
+
+    _, err := r.db.ExecContext(ctx, sqlQuery, userId)
+    return err
+}
+
 func (r *DbUserRepository) Get(ctx context.Context, page, pageSize int) ([]*entities.User, error) {
 	sqlQuery := `SELECT id, first_name, last_name, email, password_hash, created_at, updated_at, deleted_at, role, last_login FROM users LIMIT $1 OFFSET $2;`
 	toSkip := pageSize * (page - 1)

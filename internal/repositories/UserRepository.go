@@ -11,4 +11,5 @@ type UserRepository interface {
 	VerifyUser(ctx context.Context, userId int) error
 	GetById(ctx context.Context, userId int) (*entities.User, error)
 	Get(ctx context.Context, page, pageSize int) ([]*entities.User, error)
+    Delete(ctx context.Context, userId int) error
 }
