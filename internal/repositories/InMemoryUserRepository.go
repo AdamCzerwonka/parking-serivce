@@ -14,6 +14,21 @@ func NewInMemoryUserRepository() *InMemoryUserRepository {
 	return &InMemoryUserRepository{users: []*entities.User{}}
 }
 
+func (r *InMemoryUserRepository) Delete(_ context.Context, userId int) error {
+    var idx int
+    for i,user := range r.users {
+        if user.Id == userId {
+            idx = i
+            break
+        }
+    }
+
+    r.users[idx] = r.users[len(r.users)-1]
+    r.users = r.users[:len(r.users)-1] 
+
+    return nil
+}
+
 func (r *InMemoryUserRepository) Get(_ context.Context, page, pageSize int) ([]*entities.User, error) {
 	toSkip := pageSize * (page-1)
     if len(r.users) == 0 {
